@@ -1,0 +1,22 @@
+Build.PL
+Changes
+lib/Text/Microformat.pm
+lib/Text/Microformat/Element.pm
+lib/Text/Microformat/Element/hCard.pm
+lib/Text/Microformat/Element/hGrant.pm
+lib/Text/Microformat/Element/URI.pm
+lib/Text/Microformat/Plugin/Include.pm
+lib/Text/Microformat/Plugin/Parser/HTML.pm
+lib/Text/Microformat/Plugin/Parser/RSS.pm
+lib/Text/Microformat/Plugin/Parser/XML.pm
+MANIFEST			This list of files
+META.yml
+README
+t/00-load.t
+t/01-hcard.t
+t/02-hgrant.t
+t/boilerplate.t
+t/hcard1.html
+t/hgrant1.html
+t/pod-coverage.t
+t/pod.t
