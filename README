@@ -2,7 +2,9 @@ Text-Microformat
 
 Text::Microformat is a Microformat parser for Perl.
 
-Text::Microformat sports a very pluggable API, which allows not only new kinds of Microformats to be added, but also extension of the parser itself, to allow new parsing metaphors and source document encodings.
+Text::Microformat sports a very pluggable API, which allows not only new kinds
+of Microformats to be added, but also extension of the parser itself, to allow
+new parsing metaphors and source document encodings.
 
 INSTALLATION
 
@@ -13,26 +15,17 @@ To install this module, run the following commands:
     ./Build test
     ./Build install
 
+BUGS
+	
+Log bugs and feature requests here: 
+	
+http://code.google.com/p/ufperl/issues/list
 
-SUPPORT AND DOCUMENTATION
+SUPPORT
 
-After installing, you can find documentation for this module with the perldoc command.
+Project homepage: 
 
-    perldoc Text::Microformat
-
-You can also look for information at:
-
-    Search CPAN
-        http://search.cpan.org/dist/Text-Microformat
-
-    CPAN Request Tracker:
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Text-Microformat
-
-    AnnoCPAN, annotated CPAN documentation:
-        http://annocpan.org/dist/Text-Microformat
-
-    CPAN Ratings:
-        http://cpanratings.perl.org/d/Text-Microformat
+http://code.google.com/p/ufperl/
 
 COPYRIGHT AND LICENCE
 

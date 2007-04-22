@@ -1,14 +1,11 @@
 use strict;
 use warnings;
 use Test::More tests => 8;
-use URI;
-use File::Slurp;
 
 BEGIN { use_ok 'Text::Microformat' }
-use Data::Dumper;
-$Data::Dumper::Terse = 1;
-$Data::Dumper::Useqq = 1;
-my $html = read_file('t/hcard1.html');
+open IN, 't/hcard1.html';
+local $/;
+my $html = <IN>;
 my $uformat = Text::Microformat->new($html);
 foreach my $thing ($uformat->find) {
 	is($thing->Class, 'vcard');

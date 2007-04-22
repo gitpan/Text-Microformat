@@ -3,3 +3,5 @@ Revision history for Text-Microformat
 0.01    2007-04-19 18:06:27
         First version, released on an unsuspecting world.
 
+0.02	2007-04-21 16:06:39
+		Removed 'File::Slurp' dependency from test suite.

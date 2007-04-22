@@ -20,3 +20,4 @@ t/hcard1.html
 t/hgrant1.html
 t/pod-coverage.t
 t/pod.t
+Makefile.PL

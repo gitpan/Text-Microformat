@@ -8,11 +8,11 @@ Text::Microformat - A Microformat parser
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -20,7 +20,9 @@ our $VERSION = '0.01';
 	use LWP::Simple;
 
 	# Parse a document
-	my $doc = Text::Microformat->new(get('http://phil.windley.org/hcard.html'));
+	my $doc = Text::Microformat->new(
+	    get('http://phil.windley.org/hcard.html')
+	);
 	
 	# Extract all known Microformats
 	my @formats = $doc->find;
@@ -61,7 +63,9 @@ our $VERSION = '0.01';
 
 Text::Microformat is a Microformat parser for Perl.
 
-Text::Microformat sports a very pluggable API, which allows not only new kinds of Microformats to be added, but also extension of the parser itself, to allow new parsing metaphors and source document encodings.
+Text::Microformat sports a very pluggable API, which allows not only new kinds
+of Microformats to be added, but also extension of the parser itself, to allow
+new parsing metaphors and source document encodings.
 
 =head2 FEATURES
 
@@ -113,9 +117,9 @@ Recognized options:
 
 =item * content_type => 'text/html'
 
-Specify the content type.  Any content type containing 'html' invokes the HTML Parser, and 
-content type containing XML invokes XML Parser.  Defaults to 'text/html'.  
-(See L<HTML::TreeBuilder> and L<XML::TreeBuilder>)
+Specify the content type. Any content type containing 'html' invokes the HTML
+Parser, and content type containing XML invokes XML Parser. Defaults to
+'text/html'. (See L<HTML::TreeBuilder> and L<XML::TreeBuilder>)
 
 =back
 
@@ -211,22 +215,24 @@ sub delete {
 
 =head2 CREATING A NEW FORMAT
 
-This is as easy as creating a new module in the Text::Microformat::Element::* namespace, having
-Text::Microformat::Element as a super-class.  It will be auto-loaded by Text::Microformat.
+This is as easy as creating a new module in the Text::Microformat::Element::*
+namespace, having Text::Microformat::Element as a super-class. It will be
+auto-loaded by Text::Microformat.
 
 Every Microformat element has it's own namespace auto-generated, for example:
 
  Text::Microformat::Element::hCard::n::family_name
 
-So it's easy to override the default behavior of Text::Microformat::Element via inheritance.
+So it's easy to override the default behavior of Text::Microformat::Element
+via inheritance.
 
 See existing formats for hints.
 
 =head2 CREATING A PLUGIN
 
-This is as easy as creating a new module in the Text::Microformat::Plugin::* namespace.  
-It will be auto-loaded by Text::Microformat.  Text::Microformat has several processing phases, and 
-uses L<NEXT> to traverse the plugin chain.
+This is as easy as creating a new module in the Text::Microformat::Plugin::*
+namespace. It will be auto-loaded by Text::Microformat. Text::Microformat has
+several processing phases, and uses L<NEXT> to traverse the plugin chain.
 
 Current processing phases are, in order of execution:
 
