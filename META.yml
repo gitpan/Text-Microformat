@@ -1,6 +1,6 @@
 ---
 name: Text-Microformat
-version: 0.03
+version: 0.04
 author:
   - 'Keith Grennan <kgrennan@cpan.org>'
 abstract: A Microformat parser
@@ -18,11 +18,9 @@ build_requires:
   UNIVERSAL::require: 0.10
   XML::TreeBuilder: 3.09
 provides:
-  HTML::Element:
-    file: lib/Text/Microformat/Element.pm
   Text::Microformat:
     file: lib/Text/Microformat.pm
-    version: 0.03
+    version: 0.04
   Text::Microformat::Element:
     file: lib/Text/Microformat/Element.pm
   Text::Microformat::Element::URI:
@@ -41,6 +39,10 @@ provides:
     file: lib/Text/Microformat/Element/hGrant.pm
   Text::Microformat::Element::rel_tag:
     file: lib/Text/Microformat/Element/rel_tag.pm
+  Text::Microformat::HTML::Element:
+    file: lib/Text/Microformat/Element.pm
+  Text::Microformat::ML::Element:
+    file: lib/Text/Microformat/Element.pm
   Text::Microformat::Plugin::Include:
     file: lib/Text/Microformat/Plugin/Include.pm
   Text::Microformat::Plugin::Parser::HTML:
@@ -49,6 +51,8 @@ provides:
     file: lib/Text/Microformat/Plugin/Parser/RSS.pm
   Text::Microformat::Plugin::Parser::XML:
     file: lib/Text/Microformat/Plugin/Parser/XML.pm
+  Text::Microformat::XML::Element:
+    file: lib/Text/Microformat/Element.pm
 generated_by: Module::Build version 0.2801
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

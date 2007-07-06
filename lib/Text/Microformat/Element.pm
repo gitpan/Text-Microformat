@@ -132,6 +132,15 @@ sub new {
     my $self = bless {}, $class;
 	my $element = shift;
 	croak 'element is required' unless $element and UNIVERSAL::isa($element, 'HTML::Element');
+	
+	# Mixin the local_name method
+	if (ref $element eq 'HTML::Element') {
+	    $element = bless $element, 'Text::Microformat::HTML::Element';
+	}
+	elsif (ref $element eq 'XML::Element') {
+        $element = bless $element, 'Text::Microformat::XML::Element';
+    }
+    
 	$self->_element($element);
 	foreach my $child (@{$class->_children}) {
 		my $accessor = _to_identifier($child);
@@ -208,10 +217,12 @@ sub Get {
 	return $v
 }
 
-package HTML::Element;
+package Text::Microformat::ML::Element;
 
 use strict;
 use warnings;
+
+our @ISA = qw/HTML::Element/;
 
 sub local_name {
     my $self = shift;
@@ -220,6 +231,20 @@ sub local_name {
     $tag =~ s/^[\w][\w\.-]*://;
     return $tag;
 }
+
+package Text::Microformat::HTML::Element;
+
+use strict;
+use warnings;
+
+our @ISA = qw/HTML::Element Text::Microformat::ML::Element/;
+
+package Text::Microformat::XML::Element;
+
+use strict;
+use warnings;
+
+our @ISA = qw/XML::Element Text::Microformat::ML::Element/;
 
 =head1 NAME
 
