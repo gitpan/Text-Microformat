@@ -1,10 +1,22 @@
 package Text::Microformat::Plugin::Parser::HTML;
 use HTML::TreeBuilder;
 
+sub html_to_tree {
+    my $c = shift;
+    my $content = shift;
+    my $tree = HTML::TreeBuilder->new;
+    while (my ($k,$v) = each %{$c->plugin_opts}) {
+        $tree->$k($v) if $tree->can($k);
+    }
+    $tree->parse_content($content);
+    return $tree;
+}
+
 sub parse {
     my $c = shift;
-	$c->tree(HTML::TreeBuilder->new_from_content($c->content)) 
-		if !$c->tree and $c->opts->{content_type} =~ /html/i;
+    if (!$c->tree and $c->opts->{content_type} =~ /html/i) {
+    	$c->tree($c->html_to_tree($c->content));     
+    }
     return $c->NEXT::parse(@_);
 }
 

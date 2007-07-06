@@ -5,7 +5,7 @@ use base 'Text::Microformat::Element';
 
 sub MachineValue {
 	my $self = shift;
-	my $tag = defined $self->_element->tag ? $self->_element->tag : "";
+	my $tag = defined $self->_element->local_name ? $self->_element->local_name : "";
 	if ($tag eq 'a') {
 		return $self->_element->attr('href');
 	}

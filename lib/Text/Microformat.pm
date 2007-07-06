@@ -12,7 +12,7 @@ Version 0.02
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 
@@ -81,13 +81,19 @@ new parsing metaphors and source document encodings.
 
 =back
 
-=head2 SUPPORTED FORMATS
+=head2 SUPPORTED MICROFORMATS
 
 =over 4
 
 =item * hCard
 
-=item * hGrant 
+=back
+
+=head2 OTHER SUPPORTED SEMANTIC MARKUP
+
+=over 4
+
+=item * hGrant
 
 =back
 
@@ -97,7 +103,7 @@ use Module::Pluggable require => 1, sub_name => 'plugins';
 use Module::Pluggable search_path => 'Text::Microformat::Element', require => 1, sub_name => 'known_formats', except => qr/^Text\::Microformat\::Element\::\w+\::/;
 use NEXT;
 use base 'Class::Accessor';
-__PACKAGE__->mk_accessors(qw/tree content opts formats/);
+__PACKAGE__->mk_accessors(qw/tree content opts formats criteria/);
 use Carp;
 
 our @ISA;
@@ -146,15 +152,27 @@ Returns an array of all known Microformats in the document.
 
 sub find {
 	my $c = shift;
+	my $criteria = shift || {};
+	$c->criteria($criteria);
 	$c->pre_find_formats;
 	$c->find_formats;
 	$c->post_find_formats;
     return @{$c->formats};
 }
 
+sub plugin_opts {
+    my $c = shift;
+    my ($package) = caller;
+    $package =~ s/^Text\::Microformat\::Plugin\:://;
+    return $c->opts->{$package};
+}
+
 sub defaults {
     my $c = shift;
     $c->opts->{content_type} ||= 'text/html';
+    $c->opts->{$_} ||= {} for  map({s/^Text\::Microformat\::Plugin\:://; $_} __PACKAGE__->plugins);
+    $c->opts->{'Parser::HTML'}{empty_element_tags} = 1 
+        unless defined $c->opts->{'Parser::HTML'}{empty_element_tags};
     $c->NEXT::defaults(@_);
 }
 
@@ -175,10 +193,27 @@ sub post_parse {
 
 sub find_formats {
     my $c = shift;
+    my $format_re;
+    
+    my $formats = $c->criteria->{formats} || $c->criteria->{format};
+    if (defined $formats) {
+        if (ref $formats eq 'Regex') {
+            $format_re = $formats;
+        }
+        elsif (ref $formats eq 'ARRAY' or !ref $formats) {
+            $format_re = join '|', (ref $formats eq 'ARRAY' ? @$formats : $formats);
+            $format_re = qr/^(?:$format_re)$/mis;
+        }
+        print "$format_re\n";
+    }
+    
 	foreach my $format ($c->known_formats) {
-		next unless $format->_eclass;
+	    (my $short_name = $format) =~ s/Text\::Microformat\::Element\:://;
+	    next if defined $format_re and $short_name !~ $format_re;
+		next unless $format->_params->{criteria};
 		push @{$c->formats}, $format->Find($c->tree);
 	}
+	
     $c->NEXT::find_formats(@_);
 }
 
@@ -196,6 +231,38 @@ sub class_regex {
 	my $c = shift;
 	my $classes = join '|', @_;
 	return qr/(?:\A|\s)(?:$classes)(?:\s|\z)/mis;
+}
+
+# make a regex that matches one or more tagnames (for look_down)
+# right now it makes a regex that ignores namespaces,
+# and just matches the local name of the tag.
+# might want to make this behavior alterable via an option later.
+sub tag_regex {
+	my $c = shift;
+	my $names = join '|', @_;
+	return qr/^(?:\w[\w\.-]*:)?(?:$names)$/mis;
+}
+
+# Returns a closure that is a default filter for the
+# Find() method (I.e. it is passed to $context_element->look_down).
+# Currently it just ensures that the returned elements:
+#  - are not $context_element
+#  - are not child elements of elements which matched previously
+#
+# XXX TODO - Will using a closure here cause memory leaks?
+
+sub element_filter {
+    my $c = shift;
+    my $context_element = shift;
+    my @found;
+    return sub {
+		my $e = $_[0];
+		if ($e eq $context_element or grep $e->is_inside($_), @found) {
+			return 0;
+		}
+		push @found, $e;
+		return 1;
+	};
 }
 
 =item * delete()

@@ -9,8 +9,8 @@ sub parse {
     my $c = shift;
 	$c->NEXT::parse(@_); # wait until the XML parser has run
 	if ($c->tree and $c->opts->{content_type} =~ /xml/i and $c->tree->root->tag eq 'rss') {
-		foreach my $e ($c->tree->look_down(_tag => 'description')) {
-			my $subtree = HTML::TreeBuilder->new_from_content($e->as_trimmed_text);
+		foreach my $e ($c->tree->look_down(_tag => $c->tag_regex('description'))) {
+			my $subtree = $c->html_to_tree($e->as_trimmed_text);
 			$e->delete_content;
 			$e->push_content($subtree->root->clone);
 			$subtree->delete;

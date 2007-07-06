@@ -5,7 +5,7 @@ use warnings;
 sub post_parse {
     my $c = shift;
 	my @includes = $c->tree->look_down(
-		_tag => 'object',
+		_tag => $c->tag_regex('object'),
 		class => $c->class_regex('include'),
 	);
 	foreach my $source (@includes) {

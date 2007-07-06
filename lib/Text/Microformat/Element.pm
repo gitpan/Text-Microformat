@@ -5,24 +5,26 @@ use Carp;
 use UNIVERSAL::require;
 
 use base qw/Class::Data::Inheritable Class::Accessor/;
-__PACKAGE__->mk_classdata('_eclass');
-__PACKAGE__->mk_classdata('_schema');
-__PACKAGE__->mk_classdata('_params' => {});
-__PACKAGE__->mk_classdata('_children' => []);
+__PACKAGE__->mk_classdata('_params' => {});   # the params we were initialized with
+__PACKAGE__->mk_classdata('_children' => []); # identifiers of the schema children
 __PACKAGE__->mk_accessors(qw/_element/);
 
 sub _init {
     my $class = shift;
-	my $eclass = shift;
-	die 'eclass is required' unless defined $eclass;
-	my %params = @_;
-	my $schema = delete $params{schema};
-	$class->_eclass($eclass);
-	while (my ($k, $v) = each %params) {
-		$class->_params->{$k} = $v;
+	my $params = shift;
+	croak "params hashref is required" unless defined $params and ref $params eq 'HASH';
+	$class->_params($params);
+	my $criteria = $params->{criteria};
+	if (defined $criteria) {
+	    croak "criteria: hashref expected" unless ref $criteria eq 'HASH';
+	    while (my($k,$v) = each %$criteria) {
+	        if ($k eq 'class' and defined $v and !ref $v) {
+	            $criteria->{$k} = Text::Microformat->class_regex($v);
+	        }
+	    }
 	}
+	my $schema = $params->{schema};
 	if (defined $schema) {
-		$class->_schema($schema);
 		my @children;
 		if (ref $schema eq 'HASH') {
 			@children  = keys %$schema;
@@ -45,6 +47,7 @@ sub _init {
 
 sub _to_identifier {
 	(my $thing = shift) =~ s/\W+/_/g;
+	$thing =~ s/^_//;
 	return $thing;
 }
 
@@ -61,20 +64,28 @@ sub _init_child_class {
 	$class->_get_child_class($child, 1);
 }
 
+sub _to_criteria {
+    my $child = shift;
+    return {class => Text::Microformat->class_regex($child)};
+}
+
 sub _get_child_class {
 	my $class = shift;
 	my $child = shift;
 	my $init = shift;
-	my $schema = $class->_schema;
+	my $schema = $class->_params->{schema};
 	my $child_class = _default_child_class($class, $child);
 	my $base_class = 'Text::Microformat::Element';
-	my $isa_format;
+	my %opts;
 	# if a specific class is specified in the schema, use it
 	if (ref $schema eq 'HASH' and defined $schema->{$child} and !ref $schema->{$child} and length $schema->{$child}) {
-		my $spec_class = 'Text::Microformat::Element::' . $schema->{$child};
+		my $spec_class = 'Text::Microformat::Element::' . _to_identifier($schema->{$child});
 		$spec_class->require;
-		if ($spec_class->_eclass) {
-			$isa_format++;
+		if ($spec_class->_params->{criteria}) {
+			$opts{isa_format}++;
+			if ($schema->{$child} =~ /^!/) {
+    		    $opts{use_child_criteria}++;
+    		}
 		}
 		$base_class = $spec_class;
 	}
@@ -83,15 +94,20 @@ sub _get_child_class {
 		@{$child_class.'::ISA'} = $base_class;
 		#print STDERR "$child_class ISA $base_class\n";
 		if (ref $schema eq 'HASH') {
-			if ($isa_format) {
-				$child_class->_init($child, schema => $base_class->_schema);
+			if ($opts{isa_format}) {
+			    if ($opts{use_child_criteria}) {
+			        $child_class->_init({criteria => $base_class->_params->{criteria}, schema => $base_class->_params->{schema}});
+			    }
+			    else {
+			        $child_class->_init({criteria => _to_criteria($child), schema => $base_class->_params->{schema}});
+			    }
 			}
 			else {
-				$child_class->_init($child, schema => $schema->{$child});
+				$child_class->_init({criteria => _to_criteria($child), schema => $schema->{$child}});
 			}
 		}
 		else {
-			$child_class->_init($child);
+			$child_class->_init({criteria => _to_criteria($child)});
 		}
 	}
 	#print STDERR "_get_child_class($class, $child) = $child_class\n";
@@ -101,20 +117,12 @@ sub _get_child_class {
 sub Find {
 	my $class = shift;
 	my $element = shift;
-	my $eclass = $class->_eclass;
 	my @found;
-	my $re = Text::Microformat->class_regex($eclass);
-	#print STDERR "Find($re)\n";
+	my $criteria = $class->_params->{criteria};
+	croak "missing criteria" unless defined $criteria and ref $criteria eq 'HASH';
 	return map ($class->new($_), $element->look_down(
-		class => $re,
-		sub {
-			my $e = $_[0];
-			if ($e eq $element or grep $e->is_inside($_), @found) {
-				return 0;
-			}
-			push @found, $e;
-			return 1;
-		},
+		%{$class->_params->{criteria}},
+		Text::Microformat->element_filter($element),
 	));
 }
 
@@ -172,11 +180,6 @@ sub ToYAML {
 	return YAML::Dump(shift->ToHash);
 }
 
-sub Class {
-	my $self = shift;
-	return $self->_eclass;
-}
-
 sub GetM {
 	my $self = shift;
 	my $path = shift;
@@ -203,6 +206,19 @@ sub Get {
 		$v = $o->$accessor if !@path;
 	}
 	return $v
+}
+
+package HTML::Element;
+
+use strict;
+use warnings;
+
+sub local_name {
+    my $self = shift;
+    my $tag = $self->tag;
+    return $tag unless defined $tag;
+    $tag =~ s/^[\w][\w\.-]*://;
+    return $tag;
 }
 
 =head1 NAME

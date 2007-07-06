@@ -1,40 +1,39 @@
-package Text::Microformat::Element::hGrant;
+package Text::Microformat::Element::hCal;
 use warnings;
 use strict;
 use base 'Text::Microformat::Element';
 
 __PACKAGE__->_init({
     criteria => {
-        class => 'hgrant',
+        class => 'vevent',
     },
 	schema => {
-		title => [],
-	    period => [qw/dtstart dtend/],
-	    grantee => 'hCard',
-	    grantor => 'hCard',
-	    description => [],
-	    amount => [qw/currency amount/],
+	    category => [],
+	    class => [],
+        description => [],
+        dtend => [],
+        dtstart => [],
+        duration => [],
+        location => [],
+	    note => [],
+        summary => [],
+        status => [],
+	    uid => [],
 	    url => 'URI',
-		id => [],
-		'geo-focus' => [qw/country region locality postal-code/],
-		'program-focus' => {
-		    tags => '!rel-tag',
-		},
-		tags => '!rel-tag',
 	},
 });
 
 =head1 NAME
 
-Text::Microformat::Element::hGrant - hGrant plugin for Text::Microformat
+Text::Microformat::Element::hCal - hCal plugin for Text::Microformat
 
 =head1 SEE ALSO
 
-L<Text::Microformat>, L<http://microformats.org>
+L<Text::Microformat>, L<http://microformats.org/wiki/hcal>
 
 =head1 AUTHOR
 
-Keith Grennan, C<< <kgrennan at cpan.org> >>
+Franck Cuny, C<< <franck dot cuny at gmail.com> >>
 
 =head1 BUGS
 
@@ -52,5 +51,6 @@ This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
+
 
 1;

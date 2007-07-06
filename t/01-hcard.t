@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 8;
+use Test::More tests => 7;
 
 BEGIN { use_ok 'Text::Microformat' }
 open IN, 't/hcard1.html';
@@ -8,7 +8,6 @@ local $/;
 my $html = <IN>;
 my $uformat = Text::Microformat->new($html);
 foreach my $thing ($uformat->find) {
-	is($thing->Class, 'vcard');
 	is($thing->fn->[0]->Value, 'John Doe');
 	is($thing->Get('fn'), 'John Doe');
 	is($thing->Get('adr.post-office-box'), 'Box 1234');

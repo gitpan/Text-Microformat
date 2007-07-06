@@ -3,8 +3,10 @@ use warnings;
 use strict;
 use base 'Text::Microformat::Element';
 
-__PACKAGE__->_init(
-	'vcard',
+__PACKAGE__->_init({
+    criteria => {
+        class => 'vcard',
+    },
 	schema => {
 	    fn => [],
 	    n => [qw/family-name given-name additional-name honorific-prefix honorific-suffix/],
@@ -32,7 +34,7 @@ __PACKAGE__->_init(
 	    uid => [],
 	    rev => [],
 	},
-);
+});
 
 package Text::Microformat::Element::hCard::HasValue;
 use warnings;
